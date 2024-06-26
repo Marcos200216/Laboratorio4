@@ -1,13 +1,29 @@
-<h1>Tarea ID: {{ $task->id }}</h1>
-<hr>
-<h2>{{ $task->name }}</h2>
-<p>{{ $task->description }}</p>
+@extends('layouts.app')
 
-<a href="/tasks/{{ $task->id }}/edit">Editar</a>
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">Show Task</div>
 
-<!-- Formulario para eliminar la tarea -->
-<form action="/tasks/{{ $task->id }}" method="POST" style="display:inline;">
-    @csrf
-    @method('DELETE')
-    <button type="submit" class="btn btn-danger">Eliminar Tarea</button>
-</form>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Title:</strong></div>
+                        <div class="col-md-6">{{ $task->title }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Priority:</strong></div>
+                        <div class="col-md-6">{{ $task->priority }}</div>
+                    </div>
+                    <div class="row mb-0">
+                        <div class="col-md-8 offset-md-4">
+                            <a class="btn btn-secondary" href="{{ route('tasks.index') }}">Back</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

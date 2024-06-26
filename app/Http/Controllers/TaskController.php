@@ -9,80 +9,69 @@ class TaskController extends Controller
 {
     public function index()
     {
-
-        $tasks = Task::all();
-
-        return view('tasks.index', [
-            'tasks' => $tasks
-        ]);
+        $tasks = Task::latest()->paginate(10);
+        return view('tasks.index', compact('tasks'));
     }
 
     public function create()
     {
-
         return view('tasks.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|max:255',
+            'priority' => 'required|in:baja,media,alta', // Validación para asegurar que la prioridad sea una de las opciones permitidas
+        ]);
+
+        Task::create([
+            'title' => $request->title,
+            'priority' => $request->priority,
+            'completed' => false,
+        ]);
+
+        return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
     }
 
     public function show(Task $task)
     {
-
-        return view('tasks.show', [
-            'task' => $task
-        ]);
-    }
-
-    public function store()
-    {
-
-        // $task = new Task();
-
-        // $task->name = request('name'); 
-        // $task->description = request('description');
-
-        // $task->save();
-        $data = request()->validate([
-            'name' => ['required', 'min:3', 'max:255'],
-            'description' => ['required', 'min:3']
-        ]);
-
-        Task::create($data);
-
-        return redirect('/tasks');
+        return view('tasks.show', compact('task'));
     }
 
     public function edit(Task $task)
     {
-
-        return view('tasks.edit', [
-            'task' => $task
-        ]);
+        return view('tasks.edit', compact('task'));
     }
 
-    public function update(Task $task)
+    public function update(Request $request, Task $task)
     {
-
-        $data = request()->validate([
-            'name' => ['required', 'min:3', 'max:255'],
-            'description' => ['required', 'min:3']
+        $request->validate([
+            'title' => 'required|max:255',
+            'priority' => 'required|in:baja,media,alta',
+            'completed' => 'required',
         ]);
 
-       $task->fill($data)->save();
-       //$task->update($data);
+        $task->update([
+            'title' => $request->title,
+            'priority' => $request->priority,
+            'completed' => $request->completed,
+        ]);
 
-        return redirect('/tasks/' . $task->id);
+        return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }
 
-    
     public function destroy(Task $task)
     {
         $task->delete();
-        return redirect('/tasks')->with('success', 'Tarea eliminada correctamente.');
+
+        return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
     }
 
     public function complete(Task $task)
     {
-        $task->completed = true;
-        $task->save();
-        return redirect('/tasks')->with('success', 'Tarea completada correctamente.');
+        $task->update(['completed' => true]);
+
+        return redirect()->route('tasks.index')->with('success', 'Task marked as completed.');
     }
 }
